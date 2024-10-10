@@ -1,0 +1,15 @@
+<!-- 500 error msg - implement something creative here -->
+{% extends 'base.html' %}
+{% block content %}
+{% extends 'base.html' %}
+{% block content %}
+<div class="container p-4">
+    <h1>500 serve error</h1>
+    <p>We can't find the page you're looking for.</p>
+    <p>
+      Return to <u><a href="/">Home</a></u>
+    </p>
+    <img class="img-fluid" src="{{ url_for('static', filename='/img/404error.svg') }}" alt="" />
+    <p><a href="https://storyset.com/web">Web illustrations by Storyset</a></p>
+  </div>
+{% endblock %}

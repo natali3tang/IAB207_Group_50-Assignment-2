@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% from 'bootstrap5/form.html' import render_form %}
+
+{% block content %}
+<div class="event-title-cont">
+    <h1 class="p-5 pb-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" fill="currentColor" class="bi bi-person-hearts"
+            viewBox="0 0 16 16">
+            <path fill-rule="evenodd"
+                d="M11.5 1.246c.832-.855 2.913.642 0 2.566-2.913-1.924-.832-3.421 0-2.566ZM9 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-9 8c0 1 1 1 1 1h10s1 0 1-1-1-4-6-4-6 3-6 4Zm13.5-8.09c1.387-1.425 4.855 1.07 0 4.277-4.854-3.207-1.387-5.702 0-4.276ZM15 2.165c.555-.57 1.942.428 0 1.711-1.942-1.283-.555-2.281 0-1.71Z" />
+        </svg>
+        <span class="impact">Before you become a Changemaker</span>, please confirm that you can attend.
+    </h1>
+
+</div>
+
+
+<div class="container">
+    <div class="row">
+
+
+        <div class="col-lg-8 col-sm-12 event-details">
+            <div class="header-container">
+                <h2 class="event-title p-3">{{ event.title }}</h2>
+                <h4 class="order-id">Order ID #{{ order_id }}</h4>
+            </div>
+            <div class="row">
+                <div class="col-lg-5 col-sm-12">
+                    <ul class="event-ul">
+                        <h3>Event Details Overview</h3>
+                        <li class="mt-2">
+                            <div class="row">
+                                <div class="col-2">
+                                    <h5>Date</h5>
+                                </div>
+                                <div class="col-6">
+                                    {{event.date.strftime("%d/%m/%Y")}}
+                                </div>
+                            </div>
+                        </li>
+                        <li class="mt-2">
+                            <div class="row">
+                                <div class="col-2">
+                                    <h5>Time</h5>
+                                </div>
+                                <div class="col">
+                                    <p>{{event.start_time.strftime("%I:%M:%p")}}-{{event.end_time.strftime("%I:%M:%p")}}
+                                    </p>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="mt-1">
+                            <div class="row">
+                                <div class="col-2">
+                                    <h5>Age Limit</h5>
+                                </div>
+                                <div class="col-6">
+                                    <p> {% if event.age_limit == 0 %}
+                                        None
+                                        {% else %}
+                                        18+ *
+                                        {% endif %}</p>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li>
+                            <h5 class="mt-3">Organiser Contact</h5>
+                            Phone: {{ event.user.phonenum }}
+                        </li>
+                        Organiser: {{ event.user.email }}
+                        </li>
+                    </ul>
+                    <br>
+                    <a class="btn" id="registrationLink">
+                        {{ render_form(form, action=url_for('event.registration', id=event.id)) }}
+                    </a>
+                </div>
+                <div class="col-lg-7 col-sm-12">
+                    <div class="m-4 mt-0">
+                        <div class="d-flex flex-column">
+                            <!-- PUT CUTE IMAGE HERE -->
+                            <img class="img-fluid" src="{{ url_for('static', filename='img/volunteering.svg') }}" alt="" style="width: 80%">
+                            <a href="https://storyset.com/people">People illustrations by Storyset</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            
+
+            <!-- flashes any messages to the user -->
+            {% with messages = get_flashed_messages() %}
+            {% if messages %} <!-- check if there are any messages -->
+            <div class="container-fluid">
+                <div class="row mt-3 mb-3">
+                    <div class="col-md-12">
+                        {% for message in messages %} <!--loop through the messages-->
+                        <div class="alert alert-danger">{{message}}</div> <!--display as alert-->
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endwith %}
+
+        </div>
+        <div class="col-lg-4 col-sm-12">
+            <div class="row">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4150684.8494608523!2d148.90144419116942!3d-29.14364562752068!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2b2bfd076787c5df%3A0x538267a1955b1352!2sAustralia!5e0!3m2!1sen!2sau!4v1698202271687!5m2!1sen!2sau"
+                    width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+            <div class="row">
+                <div class="location-div">
+                    <h5><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+                            <path
+                                d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" />
+                        </svg>
+                        {{location.street}}, {{location.suburb}}, {{location.city}},
+                        {{location.state}},
+                        {{location.postcode}}
+                        <h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if event.age_limit == 1 %}
+    <i class="mb-3">* You are legally required to present ID upon signing in in order to participate.</i>
+    {% endif %}
+    <br>
+    <br>
+</div>
+{% endblock %}

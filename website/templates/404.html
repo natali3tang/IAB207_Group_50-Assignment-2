@@ -1,0 +1,14 @@
+<!-- 401 error msg - implement something creative here-->
+{% extends 'base.html' %} {% block content %}
+<div class="container p-4">
+  <h1>404 Not Found</h1>
+  <p>We can't find the page you're looking for.</p>
+  <p>
+    Return to <u><a href="/">Home</a></u>
+  </p>
+  <div class="d-flex flex-column justify-items-center">
+    <img class="img-fluid" src="{{ url_for('static', filename='/img/404error.svg') }}" alt="" style="max-width: 700px" />
+    <p><a href="https://storyset.com/web">Web illustrations by Storyset</a></p>
+  </div>
+</div>
+{% endblock %}

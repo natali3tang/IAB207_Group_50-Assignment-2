@@ -1,0 +1,165 @@
+{% extends 'base.html' %} {% block content %}
+<div class="in-between">
+  <div class="p-5 mb-4 bg-light jumbotronback">
+    <div class="container-xl py-5">
+      <h1 class="display-1 fw-bold text-light jumbo-text">Changemakers</h1>
+      <p class="col-md-8 fs-3 text-light jumbo-text">
+        You can make a difference. <span class="impact">Volunteer</span> for an event near you today.
+      </p>
+      {% if current_user.is_authenticated %}
+      <a href="{{ url_for('main.index') }}" class="btn button w-25">Join in Now</a>
+      {% else %}
+      <a href="{{ url_for('auth.login') }}" class="btn button w-25">Join in Now</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <nav class="navbar navbar-expand-lg filter-nav nav-justified flex-rowjustify-content-around" style="margin-top: -2%">
+    <div class="container">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item dropdown">
+          <button class="btn dropdown-toggle filter-toggle" type="button" id="dropdownMenu3" data-bs-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            Sort Results By
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenu3" style="position: absolute">
+            <a class="dropdown-item" href="{{ url_for('main.sort_by', sort='date') }}">Coming Up Soon</a>
+            <a class="dropdown-item" href="{{ url_for('main.sort_by', sort='causes') }}">Causes</a>
+            <a class="dropdown-item" href="{{ url_for('main.sort_by', sort='availability') }}">All Availability</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <button class="btn dropdown-toggle filter-toggle" type="button" id="dropdownMenu1" data-bs-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            Causes
+          </button>
+          <div class="dropdown-menu p-3" aria-labelledby="dropdownMenu1" style="position: absolute">
+            <a class="dropdown-item" href="{{ url_for('main.filter_cause', cause='1') }}"><img
+                src="{{ url_for('static', filename='/img/advocacy.png') }}" class="volunteer-type-img" />Advocacy</a>
+            <a class="dropdown-item" href="{{ url_for('main.filter_cause', cause='2') }}"><img
+                src="{{ url_for('static', filename='/img/animals.png') }}" class="volunteer-type-img" />Animals</a>
+            <a class="dropdown-item" href="{{ url_for('main.filter_cause', cause='3') }}"><img
+                src="{{ url_for('static', filename='/img/companionship.png') }}"
+                class="volunteer-type-img" />Companionship</a>
+            <a class="dropdown-item" href="{{ url_for('main.filter_cause', cause='4') }}"><img
+                src="{{ url_for('static', filename='/img/disaster.png') }}" class="volunteer-type-img" />Disaster
+              Relief</a>
+            <a class="dropdown-item" href="{{ url_for('main.filter_cause', cause='5') }}"><img
+                src="{{ url_for('static', filename='/img/elderly.png') }}" class="volunteer-type-img" />Elderly</a>
+            <a class="dropdown-item" href="{{ url_for('main.filter_cause', cause='6') }}"><img
+                src="{{ url_for('static', filename='/img/environment.png') }}"
+                class="volunteer-type-img" />Environment</a>
+            <a class="dropdown-item" href="{{ url_for('main.filter_cause', cause='7') }}"><img
+                src="{{ url_for('static', filename='/img/food.png') }}" class="volunteer-type-img" />Food and Water</a>
+            <a class="dropdown-item" href="{{ url_for('main.filter_cause', cause='8') }}"><img
+                src="{{ url_for('static', filename='/img/teaching.png') }}" class="volunteer-type-img" />Teaching and
+              Learning</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <button class="btn dropdown-toggle filter-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            Location
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenu2" style="position: absolute">
+            <a href="{{ url_for('main.filter_state', state='QLD') }}" class="dropdown-item" type="button">QLD</a>
+            <a href="{{ url_for('main.filter_state', state='NSW') }}" class="dropdown-item" type="button">NSW</a>
+            <a href="{{ url_for('main.filter_state', state='TAS') }}" class="dropdown-item" type="button">TAS</a>
+            <a href="{{ url_for('main.filter_state', state='VIC') }}" class="dropdown-item" type="button">VIC</a>
+            <a href="{{ url_for('main.filter_state', state='WA') }}" class="dropdown-item" type="button">WA</a>
+            <a href="{{ url_for('main.filter_state', state='SA') }}" class="dropdown-item" type="button">SA</a>
+            <a href="{{ url_for('main.filter_state', state='ACT') }}" class="dropdown-item" type="button">ACT</a>
+            <a href="{{ url_for('main.filter_state', state='NT') }}" class="dropdown-item" type="button">NT</a>
+          </div>
+        </li>
+      </ul>
+
+    </div>
+  </nav>
+</div>
+
+</br>
+
+{% if search == True %}
+<h1 class="sub-title">Search Results For "{{query}}"</h1>
+{% elif filter %}
+<h1 class="sub-title">Showing Events Filtered by "{{filter}}"</h1>
+{% else %}
+<h1 class="sub-title">Upcoming Volunteer Opportunities For You</h1>
+{% endif %}
+
+<div class="horizontal-divider"></div>
+
+{% if not events %}
+<div class="container text-center">
+  <img src="{{ url_for('static', filename='/img/empty.svg') }}" alt="" style="max-width: 400px">
+  <p>No events found.</p>
+</div>
+{% else %}
+<div class="container">
+  <div class="card-group">
+    <div class="row">
+      {% for event in events %}
+      <div class="card col-lg-3 col-md-6 col-sm-12 info-card bg-light" style="min-width: 300px">
+        <img class="card-img-top card-img event-img-card" src="/{{event.image}}" alt="Card image cap" />
+        <div class="ribbon">
+          <p>Status: <span class="
+            {% if event.status_id == 1%}open
+            {% elif event.status_id == 2%}closed
+            {% elif event.status_id == 3%}inactive
+            {% elif event.status_id == 4%}cancelled
+            {% endif %}
+            ">{{ event.status.status }}</span></p>
+        </div>
+        <div class="card-body">
+          <h5 class="card-title card-tit">
+            {% if event.genre_id == 1 %}
+            <img src="{{ url_for('static', filename='img/advocacy.png') }}" class="volunteer-type-img" />
+            {% elif event.genre_id == 2 %}
+            <img src="{{ url_for('static', filename='img/animals.png') }}" class="volunteer-type-img" />
+            {% elif event.genre_id == 3 %}
+            <img src="{{ url_for('static', filename='img/companionship.png') }}" class="volunteer-type-img" />
+            {% elif event.genre_id == 4 %}
+            <img src="{{ url_for('static', filename='img/disaster.png') }}" class="volunteer-type-img" />
+            {% elif event.genre_id == 5 %}
+            <img src="{{ url_for('static', filename='img/elderly.png') }}" class="volunteer-type-img" />
+            {% elif event.genre_id == 6 %}
+            <img src="{{ url_for('static', filename='img/environment.png') }}" class="volunteer-type-img" />
+            {% elif event.genre_id == 7 %}
+            <img src="{{ url_for('static', filename='img/food.png') }}" class="volunteer-type-img" />
+            {% elif event.genre_id == 8 %}
+            <img src="{{ url_for('static', filename='img/teaching.png') }}" class="volunteer-type-img" />
+            {% endif %}
+            <a href="{{ url_for('event.show', id=event.id) }}">{{ event.title }}</a>
+          </h5>
+
+          <h6 class="card-subtitle mb-2 location">
+            <img class="pin-drop" src="{{url_for('static', filename='/img/pin.png')}}" alt="Pin drop" /><u>{{
+              event.location.suburb }}, {{ event.location.state }}</u> | {{ event.date.strftime("%d/%m/%Y") }}
+          </h6>
+
+          <div class="horizontal-divider"></div>
+
+          {% if current_user.is_authenticated and event.user_id == current_user.id %}
+          <a href=" {{ url_for('event.show', id=event.id) }}" class="btn button-2">View My Event</a>
+          {% else %}
+          <a href=" {{ url_for('event.show', id=event.id) }}" class="btn button-2">Volunteer Now</a>
+          {% endif %}
+        </div>
+      </div>
+
+      {% endfor %}
+      {% endif %}
+
+
+
+
+    </div>
+  </div>
+</div>
+</br>
+<div class="container text-center">
+  <i>{{count}} results returned.</i>
+</div>
+</br>
+{% endblock %}

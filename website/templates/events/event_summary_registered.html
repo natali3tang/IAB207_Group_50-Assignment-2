@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col btn d-flex justify-content-center p-4">
+            <a class="col btn button-4 button-4-inactive" href="{{ url_for('event.created_events') }}">Created
+                Events</a>
+        </div>
+        <div class="col d-flex justify-content-center p-4">
+            <a class="col btn button-4" href="{{ url_for('event.registered_events') }}">Registered
+                Events</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- flashes any messages to the user -->
+    {% with messages = get_flashed_messages() %}
+    {% if messages %} <!-- check if there are any messages -->
+    <div class="container-fluid">
+        <div class="row mt-3 mb-3">
+            <div class="col-md-12">
+                {% for message in messages %} <!--loop through the messages-->
+                <div class="alert alert-info">{{message}}</div> <!--display as alert-->
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+</div>
+
+<div class="container">
+    <h1 class="text-left pt-4">Upcoming</h1>
+
+    <div class="row">
+        <!-- UPCOMING EVENT CARDS -->
+        <!-- {{ upcoming_events }} -->
+
+        {% if upcoming_events %}
+        {% for upcoming_event, registration_id in upcoming_events %}
+        <div class="card col-lg-3 col-md-6 col-sm-12 info-card bg-light">
+            <img class=" card-img-top card-img" src="/{{upcoming_event.image}}" alt="Card image cap">
+            <div class="ribbon">
+                <p>Status: <span class="
+                    {% if upcoming_event.status_id == 1%}open
+                    {% elif upcoming_event.status_id == 2%}closed
+                    {% elif upcoming_event.status_id == 3%}inactive
+                    {% elif upcoming_event.status_id == 4%}cancelled
+                    {% endif %}
+                    ">{{ upcoming_event.status.status }}</span></p>
+            </div>
+            <div class="ribbon event-id">
+                <p>Booking ID #{{ registration_id[0] }}</p>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title card-tit">
+                    {% if upcoming_event.genre_id == 1 %}
+                    <img src="{{ url_for('static', filename='img/advocacy.png') }}" class="volunteer-type-img" />
+                    {% elif upcoming_event.genre_id == 2 %}
+                    <img src="{{ url_for('static', filename='img/animals.png') }}" class="volunteer-type-img" />
+                    {% elif upcoming_event.genre_id == 3 %}
+                    <img src="{{ url_for('static', filename='img/companionship.png') }}" class="volunteer-type-img" />
+                    {% elif upcoming_event.genre_id == 4 %}
+                    <img src="{{ url_for('static', filename='img/disaster.png') }}" class="volunteer-type-img" />
+                    {% elif upcoming_event.genre_id == 5 %}
+                    <img src="{{ url_for('static', filename='img/elderly.png') }}" class="volunteer-type-img" />
+                    {% elif upcoming_event.genre_id == 6 %}
+                    <img src="{{ url_for('static', filename='img/environment.png') }}" class="volunteer-type-img" />
+                    {% elif upcoming_event.genre_id == 7 %}
+                    <img src="{{ url_for('static', filename='img/food.png') }}" class="volunteer-type-img" />
+                    {% elif upcoming_event.genre_id == 8 %}
+                    <img src="{{ url_for('static', filename='img/teaching.png') }}" class="volunteer-type-img" />
+                    {% endif %}
+
+                    <a href="{{ url_for('event.show', id=upcoming_event.id) }}">{{upcoming_event.title}}</a>
+                </h5>
+
+                <h6 class="card-subtitle mb-2 location">
+                    <img class="pin-drop" src="{{url_for('static', filename='/img/pin.png')}}" alt="Pin drop">
+                    <u>{{ upcoming_event.location.street }}, {{ upcoming_event.location.suburb }}, {{
+                        upcoming_event.location.city }} {{ upcoming_event.location.postcode }}</u>
+                    <br>
+                    <br>
+                    {{upcoming_event.date.strftime("%d/%m/%Y")}},
+                    {{upcoming_event.start_time.strftime("%I:%M %p")}} -
+                    {{upcoming_event.end_time.strftime("%I:%M %p")}}
+                </h6>
+
+                <div class="horizontal-divider"></div>
+
+                <button class="btn button-2 mb-2" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#details{{ upcoming_event.id }}" aria-expanded="false"
+                    aria-controls="details{{ upcoming_event.id }}">
+                    Contact Organiser <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-caret-down-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+                    </svg>
+                </button>
+
+                <!-- collapsible content -->
+                <div class="collapse" id="details{{ upcoming_event.id }}">
+                    <div class="collapse-content card card-body container">
+                        <div class="row">
+                            <h5 class="col-3">Name</h5>
+                            <p class="col">{{ upcoming_event.user.fname }} {{ upcoming_event.user.lname }}</p>
+                        </div>
+                        <div class="row">
+                            <h5 class="col-3">Email</h5>
+                            <p class="col">{{ upcoming_event.user.email }}</p>
+                        </div>
+                        <div class="row">
+                            <h5 class="col-3">Phone</h5>
+                            <p class="col-7">{{ upcoming_event.user.phonenum }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn cancel button-2 mb-2" type="button" data-bs-toggle="modal"
+                    data-bs-target="#cancelModal{{ upcoming_event.id }}">Cancel RSVP</button>
+            </div>
+        </div>
+
+        <!-- Cancel RSVP Modal -->
+        <div class="modal fade" id="cancelModal{{ upcoming_event.id }}" tabindex="-1" aria-labelledby="cancelModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title" id="cancelModalLabel">Cancel Registration</h2>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to cancel your registration for {{upcoming_event.title}}?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        {{ render_form(cancel_form,"/events/{0}/cancel-rego".format(upcoming_event.id)) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="row">
+            <div>
+                <i>You currently haven't registered for any upcoming events.</i>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container">
+    <h1 class="text-left pt-4">History</h1>
+    <div class="row">
+        <!-- {{ event_history }} -->
+
+        {% if event_history %}
+        {% for event, registration_id in event_history %}
+        <div class="card col-lg-3 col-md-6 col-sm-12 info-card bg-light">
+            <img class=" card-img-top card-img" src="/{{event.image}}" alt="Card image cap">
+            <div class="ribbon">
+                <p>Status: <span class="
+                    {% if event.status_id == 1%}open
+                    {% elif event.status_id == 2%}closed
+                    {% elif event.status_id == 3%}inactive
+                    {% elif event.status_id == 4%}cancelled
+                    {% endif %}
+                    ">{{ event.status.status }}</span></p>
+            </div>
+            <div class="ribbon event-id">
+                <p>Booking ID #{{ registration_id[0] }}</p>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title card-tit">
+                    {% if event.genre_id == 1 %}
+                    <img src="{{ url_for('static', filename='img/advocacy.png') }}" class="volunteer-type-img" />
+                    {% elif event.genre_id == 2 %}
+                    <img src="{{ url_for('static', filename='img/animals.png') }}" class="volunteer-type-img" />
+                    {% elif event.genre_id == 3 %}
+                    <img src="{{ url_for('static', filename='img/companionship.png') }}" class="volunteer-type-img" />
+                    {% elif event.genre_id == 4 %}
+                    <img src="{{ url_for('static', filename='img/disaster.png') }}" class="volunteer-type-img" />
+                    {% elif event.genre_id == 5 %}
+                    <img src="{{ url_for('static', filename='img/elderly.png') }}" class="volunteer-type-img" />
+                    {% elif event.genre_id == 6 %}
+                    <img src="{{ url_for('static', filename='img/environment.png') }}" class="volunteer-type-img" />
+                    {% elif event.genre_id == 7 %}
+                    <img src="{{ url_for('static', filename='img/food.png') }}" class="volunteer-type-img" />
+                    {% elif event.genre_id == 8 %}
+                    <img src="{{ url_for('static', filename='img/teaching.png') }}" class="volunteer-type-img" />
+                    {% endif %}
+
+                    <a href="{{ url_for('event.show', id=event.id) }}">{{event.title}}</a>
+                </h5>
+
+                <h6 class="card-subtitle mb-2 location">
+                    <img class="pin-drop" src="{{url_for('static', filename='/img/pin.png')}}" alt="Pin drop">
+                    <u>{{ event.location.street }}, {{ event.location.suburb }}, {{
+                        event.location.city }} {{ event.location.postcode }}</u> | {{
+                    event.date.strftime("%d/%m/%Y") }}
+                </h6>
+
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="row">
+            <div>
+                <i>There are currently no events in your registered history.</i>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<br>
+<br>
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body container">
+                <div class="row">
+                    <h2 id="cancelModalLabel" class="col-10">Are you sure you want to cancel?</h2>
+                    <button type="button" class="btn-close col" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="row">
+                    <button type="button" class="btn button-4 col m-3" data-bs-dismiss="modal">Yes</button>
+                    <button type="button" class="btn button-4 col m-3" data-bs-dismiss="modal">No thanks</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

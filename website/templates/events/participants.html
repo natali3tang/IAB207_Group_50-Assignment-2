@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="p-4">{{ event.title }} (ID #{{ event.id }})</h1>
+<div class="container">
+    <h3>Registered participants</h3>
+    {% if registered_users %}
+    <table class="table">
+        <thead class="table-light">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Phone</th>
+                <th scope="col">RSVP Date</th>
+                <th scope="col">RSVP Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in registered_users %}
+            <tr>
+                <th scope="row">{{ loop.index }}</th>
+                <td>{{ user.user.fname }} {{ user.user.lname }}</td>
+                <td>{{ user.user.email }}</td>
+                <td>{{ user.user.phonenum }}</td>
+                <td>{{ user.registered_at.strftime("%d/%m/%Y") }}</td>
+                <td>{{ user.registered_at.strftime("%I:%M %p") }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <i>Currently there are no users registered for your event.</i>
+    {% endif %}
+</div>
+<br>
+<br>
+{% endblock %}

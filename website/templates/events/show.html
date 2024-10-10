@@ -1,0 +1,208 @@
+{% extends './base.html' %} {% block content %}
+
+{% from 'bootstrap5/form.html' import render_form %}
+
+<div class="event-title-cont container-xl pt-2">
+  <h1 class="event-title px-0">
+    <!-- change logo (genre) shown -->
+    {% if event.genre_id == 1 %}
+    <img src="{{ url_for('static', filename='img/advocacy.png') }}" class="event-logo" />
+    {% elif event.genre_id == 2 %}
+    <img src="{{ url_for('static', filename='img/animals.png') }}" class="event-logo" />
+    {% elif event.genre_id == 3 %}
+    <img src="{{ url_for('static', filename='img/companionship.png') }}" class="event-logo" />
+    {% elif event.genre_id == 4 %}
+    <img src="{{ url_for('static', filename='img/disaster.png') }}" class="event-logo" />
+    {% elif event.genre_id == 5 %}
+    <img src="{{ url_for('static', filename='img/elderly.png') }}" class="event-logo" />
+    {% elif event.genre_id == 6 %}
+    <img src="{{ url_for('static', filename='img/environment.png') }}" class="event-logo" />
+    {% elif event.genre_id == 7 %}
+    <img src="{{ url_for('static', filename='img/food.png') }}" class="event-logo" />
+    {% elif event.genre_id == 8 %}
+    <img src="{{ url_for('static', filename='img/teaching.png') }}" class="event-logo" />
+    {% endif %}
+    {{ event.title }}
+  </h1>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12 col-lg-4">
+      <div class="image-container">
+        <img src="/{{event.image}}" class="event-img" alt="Event Picture" />
+
+        <!-- conditional font colour showing -->
+        <div class="event-ribbon">
+          <p>Status: <span class="
+            {% if status.id == 1%}open
+            {% elif status.id == 2%}closed
+            {% elif status.id == 3%}inactive
+            {% elif status.id == 4%}cancelled
+            {% endif %}
+            ">{{ status.status }}</span></p>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8 col-sm-12 event-details">
+      <div class="event-sub-heading">
+        <h2> {{event.start_time.strftime("%I:%M %p")}} -
+          {{event.end_time.strftime("%I:%M %p")}},
+          {{event.date.strftime("%d/%m/%Y")}} |
+          {{location.street}},
+          {{location.city}},
+          {{location.suburb}} ({{location.state}})</h2>
+      </div>
+      <div class="row">
+        <div class="col-4">
+          <ul class="event-ul">
+            <li>
+              <h5>Organiser Contact</h5>
+              <b>Phone:</b> {{ user.phonenum }}
+            </li>
+            <li>
+              <b>Organiser:</b> {{ user.email }}
+            </li>
+          </ul>
+        </div>
+        <div class="col-3">
+          <ul class="event-ul">
+            <li>
+              <h5>Oppourtunity Organiser</h5>
+              {{ user.fname }} {{ user.lname }}
+            </li>
+          </ul>
+        </div>
+
+        <div class="col-2">
+          <ul class="event-ul">
+            <li>
+              <h5>Age Limit</h5>
+              {% if event.age_limit == 0 %}
+              None
+              {% else %}
+              18+
+              {% endif %}
+            </li>
+          </ul>
+        </div>
+        <div class="col-3">
+          <ul class="event-ul">
+            <li>
+              <h5>Spots Left Available</h5>
+              {{ spots_left }}
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <p class="event-desc">
+            {{ event.description }}
+          </p>
+        </div>
+      </div>
+
+      <!-- if the user created the event, they will be shown 'see participants' button -->
+      <!-- if the user has already registered for the event, they see cancel RSVP button -->
+      <!-- otherwise, user will see a button based on the event status -->
+      {% if user_created_form == False %}
+      {% if user_registered == True %}
+      {% if status.id == 1 %}
+      <button class="btn cancel button-2 mb-2" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancel
+        RSVP</button>
+      {% elif status.id == 3 %}
+      <button class="btn button-2" disabled>Event Closed</button>
+      <br>
+      <br>
+      {% elif status.id == 4 %}
+      <button class="btn button-2" disabled>Event Cancelled</button>
+      <br>
+      <br>
+      {% endif %}
+      {% else %}
+      {% if status.id == 1 %}
+      <a href="{{ url_for('event.registration', id=event.id) }}" class="btn button-2 event-button">RSVP Now</a>
+      {% elif status.id == 2 %}
+      <a class="btn button-2 event-button">Event Full</a>
+      <!-- Implement join waitlist? -->
+      {% elif status.id == 3 %}
+      <button class="btn button-2" disabled>Event Closed</button>
+      <br>
+      <br>
+      {% elif status.id == 4 %}
+      <button class="btn button-2 event-button" disabled>Event Cancelled</button>
+      <br>
+      <br>
+      {% endif %}
+      {% endif %}
+      {% else %}
+      {% if status.id == 1 or status.id == 2 %}
+      <a href="{{ url_for('event.participants', id=event.id) }}" class="btn button-2 event-button">View Registered
+        Participants</a>
+      {% elif status.id == 3 %}
+      <button class="btn button-2" disabled>Your Event is Closed</button>
+      <br>
+      <br>
+      {% elif status.id == 4 %}
+      <button class="btn button-2 event-button" disabled>Your Event has been Cancelled</button>
+      <br>
+      <br>
+      {% endif %}
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+<br />
+
+<!-- COMMENT SECTION -->
+
+<div class="comment-section">
+  <div class="container">
+    <h3 class="comment-title">Comments</h3>
+    <div class="row">
+      <div class="col-lg-7 col-sm-12">
+        {% if event.comments %}
+        {% for comment in event.comments %}
+        <p><b>{{comment.user.fname}} {{comment.user.lname}}</b> {{comment.posted_at.strftime("%d/%m/%Y,
+          %I:%M%p")}}
+        </p>
+        <p>{{ comment.text }}</p>
+        {% endfor %}
+        {% else %}
+        <i>It looks like no one has been here yet. Be the first to leave a comment!</i>
+        {% endif %}
+      </div>
+      <div class="col-lg-5 col-sm-12">
+        {{ render_form(form, "/events/{0}/comment".format(event.id))}}
+        <br>
+        <br>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="cancelModalLabel">Cancel Registration</h2>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to cancel your registration for {{event.title}}?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        {{ render_form(cancel_form,"/events/{0}/cancel-rego".format(event.id)) }}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
